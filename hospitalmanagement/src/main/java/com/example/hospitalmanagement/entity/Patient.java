@@ -5,9 +5,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.engine.internal.Cascade;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @ToString
 @Getter
@@ -15,7 +19,7 @@ import java.time.LocalDate;
 @Table(
         name = "patient",
         uniqueConstraints = {
-                @UniqueConstraint(name = "unique_Patient_email", columnNames = {"emails"}),
+                @UniqueConstraint(name = "unique_Patient_email", columnNames = {"email"}),
                 @UniqueConstraint(name = "unique_patient_name_birthdate", columnNames = {"name", "birthdate"})
         },
         indexes = {
@@ -38,4 +42,11 @@ public class Patient {
 
     @Enumerated(EnumType.STRING)
     private BloodGroupType bloodGroup;
+
+    @OneToOne(cascade = {CascadeType.ALL}, orphanRemoval = true )
+    @JoinColumn(name = "patient_insurance_id")
+    private Insurance insurance;
+
+    @OneToMany(mappedBy = "patient", cascade = {CascadeType.REMOVE}, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Appointment> appointment = new ArrayList<>();
 }
